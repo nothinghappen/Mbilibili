@@ -19,4 +19,5 @@
 
     <string name="action_example">Example action</string>
     <string name="title_activity_video_info">VideoInfoActivity</string>
+    <string name="title_activity_test">TestActivity</string>
 </resources>

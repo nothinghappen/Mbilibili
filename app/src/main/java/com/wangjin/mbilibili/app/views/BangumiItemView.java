@@ -2,10 +2,7 @@ package com.wangjin.mbilibili.app.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,7 +22,7 @@ public class BangumiItemView extends FrameLayout{
     public BangumiItemView(Context context) {
         super(context);
         mContext = context;
-        LayoutInflater.from(context).inflate(R.layout.bangumi_item_view,this);
+        LayoutInflater.from(context).inflate(R.layout.item_bangumi_view,this);
         mImageview = (ImageView) findViewById(R.id.bangumi_cover);
         title = (TextView) findViewById(R.id.bangumi_title);
         bgmcount = (TextView) findViewById(R.id.bgmcount);

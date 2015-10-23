@@ -2,9 +2,13 @@ package com.wangjin.mbilibili.app.Utils;
 
 import com.wangjin.mbilibili.app.model.Bangumi;
 import com.wangjin.mbilibili.app.model.BangumiInfo;
+import com.wangjin.mbilibili.app.model.List;
+import com.wangjin.mbilibili.app.model.ListInfo;
 import com.wangjin.mbilibili.app.model.Recommend;
 import com.wangjin.mbilibili.app.model.RecommendInfo;
 import com.wangjin.mbilibili.app.model.SpInfo;
+import com.wangjin.mbilibili.app.model.Spview;
+import com.wangjin.mbilibili.app.model.SpviewInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -76,11 +80,60 @@ public class JsonHandler {
     public static SpInfo handleSpInfo(JSONObject sp) {
         SpInfo spInfo = new SpInfo();
         try {
+            spInfo.setTitle(sp.getString("title"));
+            spInfo.setIsBangumi_end(sp.getInt("isbangumi_end"));
+            spInfo.setCount(sp.getInt("count"));
+            spInfo.setDescription(sp.getString("description"));
             spInfo.setCover(sp.getString("cover"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return spInfo;
+    }
+
+    public static SpviewInfo handleSpviewInfo(JSONObject spv){
+        SpviewInfo spviewInfo = new SpviewInfo();
+        try {
+            spviewInfo.setResult(spv.getInt("results"));
+            JSONArray jsonArray = spv.getJSONArray("list");
+            for (int i = 0;i<jsonArray.length();i++){
+                Spview s = new Spview();
+                JSONObject j = jsonArray.getJSONObject(i);
+                s.setTitle(j.getString("title"));
+                s.setCover(j.getString("cover"));
+                s.setAid(j.getInt("aid"));
+                s.setClick(j.getInt("click"));
+                s.setEpisode(j.getInt("episode"));
+                spviewInfo.spviews.add(s);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return spviewInfo;
+    }
+
+    public static ListInfo handleListInfo(JSONObject l){
+        ListInfo listInfo = new ListInfo();
+        try {
+            listInfo.setPages(l.getInt("pages"));
+            listInfo.setResults(l.getInt("results"));
+            JSONObject list = l.getJSONObject("list");
+            for (int i = 0;i<list.length()-1;i++){
+                JSONObject j = list.getJSONObject(String.valueOf(i));
+                List li = new List();
+                li.setAid(j.getInt("aid"));
+                li.setDescription(j.getString("description"));
+                li.setPlay(j.getInt("play"));
+                li.setTitle(j.getString("title"));
+                li.setVideo_review(j.getInt("video_review"));
+                li.setPic(j.getString("pic"));
+                listInfo.lists.add(li);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return listInfo;
     }
 
 

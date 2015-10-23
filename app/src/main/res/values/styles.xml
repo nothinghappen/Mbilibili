@@ -1,14 +1,9 @@
-<resources>
-
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="actionBarStyle">@style/bilibiliActionBar</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
     </style>
-    <style name="bilibiliActionBar" parent="@style/Widget.AppCompat.Light.ActionBar">
-        <item name="background">@color/Pink</item>
-        <item name="android:solidColor">@color/Pink</item>
-    </style>
-
-
 </resources>
