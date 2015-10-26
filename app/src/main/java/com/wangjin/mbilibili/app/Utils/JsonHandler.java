@@ -5,6 +5,7 @@ import com.wangjin.mbilibili.app.model.BangumiInfo;
 import com.wangjin.mbilibili.app.model.List;
 import com.wangjin.mbilibili.app.model.ListInfo;
 import com.wangjin.mbilibili.app.model.Recommend;
+import com.wangjin.mbilibili.app.model.RecommendBangumi;
 import com.wangjin.mbilibili.app.model.RecommendInfo;
 import com.wangjin.mbilibili.app.model.SpInfo;
 import com.wangjin.mbilibili.app.model.Spview;
@@ -132,8 +133,30 @@ public class JsonHandler {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
         return listInfo;
+    }
+
+    public static java.util.List<RecommendBangumi> handleRecommendBangumi(JSONObject res){
+        ArrayList<RecommendBangumi> recommendBangumis = new ArrayList<>();
+        String title = "";
+        try {
+            JSONArray bangumis = res.getJSONArray("list");
+            for(int i = 0;i<bangumis.length();i++){
+                JSONObject bangumi = bangumis.getJSONObject(i);
+                RecommendBangumi rb = new RecommendBangumi();
+                title = bangumi.getString("title");
+                rb.setTitle(bangumi.getString("title"));
+                rb.setSpid(bangumi.getInt("spid"));
+                rb.setCover(bangumi.getString("imageurl"));
+                rb.setImg_heigth(bangumi.getInt("height"));
+                rb.setImg_width(bangumi.getInt("width"));
+                recommendBangumis.add(rb);
+            }
+        } catch (JSONException e) {
+            System.out.println(title);
+            e.printStackTrace();
+        }
+        return recommendBangumis;
     }
 
 

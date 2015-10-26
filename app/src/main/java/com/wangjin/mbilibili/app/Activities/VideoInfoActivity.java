@@ -65,9 +65,9 @@ public class VideoInfoActivity extends ActionBarActivity implements BaseFragment
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_info);
         init();
-        Bangumi b = (Bangumi) getIntent().getSerializableExtra("bangumi");
+        int spid = getIntent().getIntExtra("spid",0);
         httpRequestUtils = HttpRequestUtils.newInstance(this);
-        httpRequestUtils.getJson(new SpRequest().setSpid(b.getSpid()).toString(),
+        httpRequestUtils.getJson(new SpRequest().setSpid(spid).toString(),
                 new HttpRequestUtils.onResponseFinishedListener() {
                     @Override
                     public void onFinish(JSONObject response) {
@@ -88,7 +88,7 @@ public class VideoInfoActivity extends ActionBarActivity implements BaseFragment
                     }
                 });
 
-        httpRequestUtils.getJson(new SpviewRequest().setSpid(b.getSpid()).setBangumi(1).setSeason_id(b.getSeasonid()).toString(),
+        httpRequestUtils.getJson(new SpviewRequest().setSpid(spid).setBangumi(1).toString(),
                 new HttpRequestUtils.onResponseFinishedListener() {
             @Override
             public void onFinish(JSONObject response) {

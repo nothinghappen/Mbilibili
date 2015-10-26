@@ -79,7 +79,7 @@ public class NewBangumiActivity extends BaseActivity implements  AdapterView.OnI
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         Intent intent = new Intent(this,VideoInfoActivity.class);
-        intent.putExtra("bangumi",bangumis.get(i));
+        intent.putExtra("spid",bangumis.get(i).getSpid());
         startActivity(intent);
     }
 

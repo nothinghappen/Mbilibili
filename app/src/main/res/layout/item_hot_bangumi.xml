@@ -14,16 +14,16 @@
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="124dp"
             android:scaleType="fitXY"
-            android:id="@+id/recommend_cover"
-        />
+            android:id="@+id/hot_bangumi_cover"
+            />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="Medium Text"
-            android:id="@+id/recommend_title"
+            android:id="@+id/hot_bangumi_title"
             />
     </LinearLayout>
 </android.support.v7.widget.CardView>

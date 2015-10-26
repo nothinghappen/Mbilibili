@@ -32,11 +32,6 @@ public class FirstActivity extends ActionBarActivity
 
     private Fragment mainFragment;
 
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
