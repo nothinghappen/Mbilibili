@@ -62,6 +62,10 @@ public class HttpRequestUtils {
         mRequestQueue.add(jsonObjectRequest);
     }
 
+    public void getXml(String adress,final onResponseFinishedListener listener){
+        
+    }
+
     //从指定URL加载图片
     public void loadImage(String url,ImageView imageView){
         mImageCache = MImageCache.getInstance();

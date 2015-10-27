@@ -3,6 +3,7 @@ package com.wangjin.mbilibili.app.Activities;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.NestedScrollView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,15 +54,6 @@ public class NewBangumiActivity extends BaseActivity implements  AdapterView.OnI
                             bangumis.add(b);
                         }
                         Collections.sort(bangumis);
-//                        int day=-1;
-//                        for (int i = 0;i < bangumis.size();i++){
-//                            if(day != bangumis.get(i).getWeekday()){
-//                                day = bangumis.get(i).getWeekday();
-//                                Bangumi b = new Bangumi();
-//                                b.setWeekday(day-7);
-//                                bangumis.add(i,b);
-//                            }
-//                        }
                         adapter.notifyDataSetChanged();
                     }
 

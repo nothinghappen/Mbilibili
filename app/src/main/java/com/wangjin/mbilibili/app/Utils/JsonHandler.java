@@ -1,5 +1,7 @@
 package com.wangjin.mbilibili.app.Utils;
 
+import android.view.View;
+
 import com.wangjin.mbilibili.app.model.Bangumi;
 import com.wangjin.mbilibili.app.model.BangumiInfo;
 import com.wangjin.mbilibili.app.model.List;
@@ -10,6 +12,7 @@ import com.wangjin.mbilibili.app.model.RecommendInfo;
 import com.wangjin.mbilibili.app.model.SpInfo;
 import com.wangjin.mbilibili.app.model.Spview;
 import com.wangjin.mbilibili.app.model.SpviewInfo;
+import com.wangjin.mbilibili.app.model.ViewInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -138,13 +141,11 @@ public class JsonHandler {
 
     public static java.util.List<RecommendBangumi> handleRecommendBangumi(JSONObject res){
         ArrayList<RecommendBangumi> recommendBangumis = new ArrayList<>();
-        String title = "";
         try {
             JSONArray bangumis = res.getJSONArray("list");
             for(int i = 0;i<bangumis.length();i++){
                 JSONObject bangumi = bangumis.getJSONObject(i);
                 RecommendBangumi rb = new RecommendBangumi();
-                title = bangumi.getString("title");
                 rb.setTitle(bangumi.getString("title"));
                 rb.setSpid(bangumi.getInt("spid"));
                 rb.setCover(bangumi.getString("imageurl"));
@@ -153,10 +154,36 @@ public class JsonHandler {
                 recommendBangumis.add(rb);
             }
         } catch (JSONException e) {
-            System.out.println(title);
             e.printStackTrace();
         }
         return recommendBangumis;
+    }
+
+    public static ViewInfo handleView(JSONObject res){
+        ViewInfo viewInfo = new ViewInfo();
+        try {
+            viewInfo.setCid(res.getInt("cid"));
+            viewInfo.setCreate_at(res.getString("created_at"));
+            viewInfo.setDescription(res.getString("description"));
+            viewInfo.setPages(res.getInt("pages"));
+            viewInfo.setPic(res.getString("pic"));
+            viewInfo.setPlay(res.getInt("play"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return viewInfo;
+    }
+
+    public static String handleVideoURL(JSONObject res){
+        String url = "";
+        try {
+            JSONArray durl = res.getJSONArray("durl");
+            JSONObject j = durl.getJSONObject(0);
+            url = j.getString("url");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return url;
     }
 
 

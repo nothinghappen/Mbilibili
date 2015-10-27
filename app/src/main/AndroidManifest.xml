@@ -30,6 +30,11 @@
             android:name=".app.Activities.TestActivity"
             android:label="@string/title_activity_test" >
         </activity>
+        <activity
+            android:name=".app.Activities.PlayerActivity"
+            android:label="@string/title_activity_player"
+            android:screenOrientation="landscape">
+        </activity>
     </application>
 
 </manifest>

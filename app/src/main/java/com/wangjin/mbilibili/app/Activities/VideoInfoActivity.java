@@ -31,7 +31,7 @@ import java.util.List;
 
 public class VideoInfoActivity extends ActionBarActivity implements BaseFragment.OnFragmentInteractionListener{
 
-    private HttpRequestUtils httpRequestUtils;
+    public HttpRequestUtils httpRequestUtils;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     private PagerAdapter mPagerAdapter;
@@ -78,8 +78,8 @@ public class VideoInfoActivity extends ActionBarActivity implements BaseFragment
                         }else {
                             isbangumi_end.setText("已完结");
                         }
-                        ((VideoInfoFragment)fragments.get(0)).changedesUI();
-                        httpRequestUtils.loadImage(spInfo.getCover(),cover);
+                        ((VideoInfoFragment) fragments.get(0)).changedesUI();
+                        httpRequestUtils.loadImage(spInfo.getCover(), cover);
                     }
 
                     @Override
@@ -97,8 +97,8 @@ public class VideoInfoActivity extends ActionBarActivity implements BaseFragment
                 for (Spview s : spviewInfo.spviews){
                     clicks = clicks + s.getClick();
                 }
-                click.setText("播放 "+String.valueOf(clicks));
-                ((VideoInfoFragment)fragments.get(0)).changebgmUI();
+                click.setText("播放 " + String.valueOf(clicks));
+                ((VideoInfoFragment) fragments.get(0)).changebgmUI();
             }
 
             @Override
