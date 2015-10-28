@@ -34,8 +34,9 @@ public class DanmukuPlayer {
     private HashMap<Integer,List<DanmukuInfo>> danmukuInfos;
     Random random = new Random();
     private MVideoView mVideoView;
-    private Thread listenerThread;
-    private int old_time = 0;
+    public Thread listenerThread;
+    private boolean play_flag = true;
+    private boolean thread_flag = true;
 
     public void setMVideoView(MVideoView mVideoView) {
         this.mVideoView = mVideoView;
@@ -56,7 +57,7 @@ public class DanmukuPlayer {
 
     public void PositionChangeCallBack(int currentPosition){
         int time = currentPosition/1000;
-        if (time != old_time) {
+        if (play_flag) {
             Log.d("Danmuku", "time: " + time);
             List<DanmukuInfo> l = danmukuInfos.get(Integer.valueOf(time));
             if (l != null) {
@@ -64,20 +65,27 @@ public class DanmukuPlayer {
                     rootView.post(new Runnable() {
                         @Override
                         public void run() {
-                            send(d.getText(), d.getSize());
+                            send(d.getText(), d.getSize(),d.getColor());
                         }
                     });
                 }
             }
-            old_time = time;
         }
     }
 
     public Thread ListenMVideoViewPosition(){
+
         Thread listenerThread = new Thread(){
+            boolean flag = true;
+
+            @Override
+            public void destroy() {
+                flag = false;
+            }
+
             @Override
             public void run() {
-                while (true) {
+                while (flag) {
                     int position = mVideoView.getCurrentPosition();
                     PositionChangeCallBack(position);
                     try {
@@ -102,20 +110,22 @@ public class DanmukuPlayer {
     }
 
     public void pause(){
+        play_flag = false;
         for (ObjectAnimator a : animatorList){
             a.pause();
         }
     }
 
     public void restart(){
+        play_flag = true;
         for (ObjectAnimator a : animatorList){
             a.resume();
         }
     }
 
-    public void send(String text,int size){
+    public void send(String text,int size,int color){
         int y = Math.abs(random.nextInt() % screenHeight);
-        final Danmuku danmuku = mDanmukuManager.getDanmuku(text,size);
+        final Danmuku danmuku = mDanmukuManager.getDanmuku(text,size,color);
         danmuku.setY(y);
         danmuku.setX(screenWidth + 100);
         danmuku.post(new Runnable() {
@@ -166,9 +176,9 @@ public class DanmukuPlayer {
                 perpared.add(danmuku);
         }
 
-        public synchronized Danmuku getDanmuku(String text,int size){
+        public synchronized Danmuku getDanmuku(String text,int size,int color){
             if (perpared.isEmpty()){
-                Danmuku danmuku = new Danmuku(mContext,text,size);
+                Danmuku danmuku = new Danmuku(mContext,text,size,color);
                 rootView.addView(danmuku);
                 return danmuku;
             }else {

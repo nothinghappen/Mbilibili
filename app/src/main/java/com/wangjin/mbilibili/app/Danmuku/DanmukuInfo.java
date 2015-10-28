@@ -7,6 +7,7 @@ public class DanmukuInfo {
     private int time;
     private String text;
     private int size;
+    private int color;
 
     public String getText() {
         return text;
@@ -30,5 +31,13 @@ public class DanmukuInfo {
 
     public void setTime(int time) {
         this.time = time;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
     }
 }

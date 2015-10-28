@@ -1,76 +1,62 @@
 package com.wangjin.mbilibili.app.Activities;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Button;
 
+import com.android.volley.VolleyError;
 import com.wangjin.mbilibili.R;
-import com.wangjin.mbilibili.app.model.List;
+import com.wangjin.mbilibili.app.Danmuku.DanmukuInfo;
+import com.wangjin.mbilibili.app.Utils.HttpRequestUtils;
+import com.wangjin.mbilibili.app.Utils.XMLhandler;
+
+import org.xmlpull.v1.XmlPullParser;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 public class TestActivity extends AppCompatActivity {
-
-    RecyclerView mRecyclerView;
-    Toolbar mToolbar;
-    String[] s = new String[1000];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
-        for (int i = 0; i < s.length; i++) {
-            s[i] = "caonima";
-        }
-        mRecyclerView = (RecyclerView) findViewById(R.id.test_rec);
-        mToolbar = (Toolbar) findViewById(R.id.test_toolbar);
-        setSupportActionBar(mToolbar);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setAdapter(new BangumiAdapter());
-    }
+        final HttpRequestUtils httpRequestUtils = HttpRequestUtils.newInstance(this);
+        Button b = (Button) findViewById(R.id.button);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("test", "request");
+                int CID = 4901125;
+                httpRequestUtils.getXml("http://www.bilibilijj.com/ashx/Barrage" +
+                        ".ashx?f=true&av=&p=&s=xml&cid=" + CID + "&n=" + CID, new HttpRequestUtils.onXMLResponseFinishedListener() {
+                    @Override
+                    public void onFinish(XmlPullParser response) {
+                        java.util.List<DanmukuInfo> danmukuInfos = XMLhandler.handleDanmukuXml(response);
+                        for (DanmukuInfo d : danmukuInfos) {
+                            Log.d("danmuku", d.getTime() + "   " + d.getText());
+                        }
+                    }
 
-    private class BangumiAdapter extends RecyclerView.Adapter<BangumiAdapter.ViewHolder> {
+                    @Override
+                    public void onError(VolleyError error) {
 
-        public BangumiAdapter() {
-
-        }
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            private TextView t;
-
-            public ViewHolder(TextView itemView) {
-                super(itemView);
-                t = itemView;
+                    }
+                });
             }
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-            TextView t = new TextView(TestActivity.this);
-            ViewHolder vh = new ViewHolder(t);
-            return vh;
-        }
-
-        @Override
-        public void onBindViewHolder(ViewHolder viewHolder, int i) {
-            TextView t = viewHolder.t;
-            t.setText(s[i]);
-        }
-
-
-        @Override
-        public int getItemCount() {
-            return s.length;
-        }
+        });
     }
-
-
 }

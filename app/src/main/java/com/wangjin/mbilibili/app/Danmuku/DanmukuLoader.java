@@ -1,5 +1,7 @@
 package com.wangjin.mbilibili.app.Danmuku;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,18 +11,13 @@ import java.util.List;
  */
 public class DanmukuLoader {
 
-    public static HashMap<Integer,List<DanmukuInfo>> LoadDanmukuInfos(){
+    public static HashMap<Integer,List<DanmukuInfo>> LoadDanmukuInfos(List<DanmukuInfo> danmukuInfos){
         HashMap<Integer,List<DanmukuInfo>> maps = new HashMap<>();
-        DanmukuInfo[] danmukuInfos = new DanmukuInfo[1000];
-        for (int i = 0;i<danmukuInfos.length;i++){
-            DanmukuInfo d = new DanmukuInfo();
-            d.setSize(Danmuku.SIZE_MEDIUM);
-            d.setTime(i / 10 + 1);
-            d.setText("233333333");
-            danmukuInfos[i] = d;
+        if (danmukuInfos.isEmpty()){
+            Log.d("danmuku","empty");
         }
-        for (int i = 0;i<danmukuInfos.length;i++){
-            DanmukuInfo d = danmukuInfos[i];
+        for (int i = 0;i<danmukuInfos.size();i++){
+            DanmukuInfo d = danmukuInfos.get(i);
             List<DanmukuInfo> l = maps.get(Integer.valueOf(d.getTime()));
             if(l == null){
                 l = new ArrayList<>();
