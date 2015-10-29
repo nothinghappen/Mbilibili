@@ -1,5 +1,6 @@
 package com.wangjin.mbilibili.app.Danmuku;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
@@ -14,6 +15,10 @@ import com.wangjin.mbilibili.R;
  */
 public class Danmuku extends TextView {
 
+    public static final int MIN_SIZE = 20;
+    public int trackNum;
+    private PositionChangeListner positionChangeListner;
+
     public Danmuku(Context context,String text,int size,int color) {
         super(context);
         String c = "#"+Integer.toHexString(color);
@@ -24,6 +29,26 @@ public class Danmuku extends TextView {
             System.out.println(e);
             setTextColor(Color.parseColor("#000000"));
         }
+
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, size);
     }
+
+
+    public void setPositionChangeListner(PositionChangeListner positionChangeListner) {
+        this.positionChangeListner = positionChangeListner;
+    }
+
+    interface PositionChangeListner{
+        void PositionCallBack();
+    }
+
+    public void listenStart(){
+        new Thread(){
+            @Override
+            public void run() {
+                positionChangeListner.PositionCallBack();
+            }
+        }.start();
+    }
+
 }

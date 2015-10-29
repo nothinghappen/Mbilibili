@@ -11,13 +11,16 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 
 
 import com.wangjin.mbilibili.app.views.MVideoView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 
 /**
@@ -28,15 +31,69 @@ public class DanmukuPlayer {
     private ViewGroup rootView;
     Context mContext;
     private DanmukuManager mDanmukuManager = new DanmukuManager();
-    int screenHeight;
-    int screenWidth;
+    private int screenHeight;
+    private int screenWidth;
+    private int rowCount;
+    private float dpValue;
     private List<ObjectAnimator> animatorList = new ArrayList<>();
     private HashMap<Integer,List<DanmukuInfo>> danmukuInfos;
     Random random = new Random();
     private MVideoView mVideoView;
     public Thread listenerThread;
     private boolean play_flag = true;
-    private boolean thread_flag = true;
+
+    public DanmukuPlayer(Context context,ViewGroup rootView,HashMap<Integer,List<DanmukuInfo>> danmukuInfos){
+        this.mContext = context;
+        this.rootView = rootView;
+        this.danmukuInfos = danmukuInfos;
+        DisplayMetrics metric = new DisplayMetrics();
+        ((Activity)mContext).getWindowManager().getDefaultDisplay().getMetrics(metric);
+        screenHeight = metric.heightPixels;
+        screenWidth = metric.widthPixels;
+        dpValue = metric.density;
+        rowCount = (int)(screenHeight/(Danmuku.MIN_SIZE*dpValue));
+    }
+
+    public void send(String text,int size,int color){
+        int row = Math.abs(random.nextInt()%rowCount);
+        float y = row*Danmuku.MIN_SIZE*dpValue;
+        final Danmuku danmuku = mDanmukuManager.getDanmuku(text, size, color);
+        danmuku.setY(y);
+        danmuku.setX(screenWidth + 100);
+        danmuku.post(new Runnable() {
+            @Override
+            public void run() {
+                final ObjectAnimator animator = ObjectAnimator
+                        .ofFloat(danmuku, "translationX", screenWidth + 100, -danmuku.getWidth())
+                        .setDuration(8000);
+                animator.setInterpolator(new LinearInterpolator());
+                animatorList.add(animator);
+                animator.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        animatorList.remove(animator);
+                        mDanmukuManager.recycleDanmuku(danmuku);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+                animator.start();
+            }
+        });
+    }
 
     public void setMVideoView(MVideoView mVideoView) {
         this.mVideoView = mVideoView;
@@ -65,7 +122,8 @@ public class DanmukuPlayer {
                     rootView.post(new Runnable() {
                         @Override
                         public void run() {
-                            send(d.getText(), d.getSize(),d.getColor());
+                            //暂且只支持一个尺寸！
+                            send(d.getText(),20,d.getColor());
                         }
                     });
                 }
@@ -99,16 +157,6 @@ public class DanmukuPlayer {
         return listenerThread;
     }
 
-    public DanmukuPlayer(Context context,ViewGroup rootView,HashMap<Integer,List<DanmukuInfo>> danmukuInfos){
-        this.mContext = context;
-        this.rootView = rootView;
-        this.danmukuInfos = danmukuInfos;
-        DisplayMetrics metric = new DisplayMetrics();
-        ((Activity)mContext).getWindowManager().getDefaultDisplay().getMetrics(metric);
-        screenHeight = metric.heightPixels;
-        screenWidth = metric.widthPixels;
-    }
-
     public void pause(){
         play_flag = false;
         for (ObjectAnimator a : animatorList){
@@ -121,46 +169,6 @@ public class DanmukuPlayer {
         for (ObjectAnimator a : animatorList){
             a.resume();
         }
-    }
-
-    public void send(String text,int size,int color){
-        int y = Math.abs(random.nextInt() % screenHeight);
-        final Danmuku danmuku = mDanmukuManager.getDanmuku(text,size,color);
-        danmuku.setY(y);
-        danmuku.setX(screenWidth + 100);
-        danmuku.post(new Runnable() {
-            @Override
-            public void run() {
-                final ObjectAnimator animator = ObjectAnimator
-                        .ofFloat(danmuku, "translationX", screenWidth + 100, -danmuku.getWidth())
-                        .setDuration(8000);
-                animatorList.add(animator);
-                animator.addListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        animatorList.remove(animator);
-                        mDanmukuManager.recycleDanmuku(danmuku);
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
-                    }
-                });
-                animator.start();
-            }
-        });
-
     }
 
     private class DanmukuManager {
