@@ -37,44 +37,43 @@ public class PlayerActivity extends ActionBarActivity {
     private int cid;
     private DanmukuPlayer mDanmukuPlayer;
     private RelativeLayout rootLayout;
-    private static final int SEND = 0;
     private String url;
     private List<DanmukuInfo> danmukuInfos;
 
     private TextView urlloding;
     private TextView danmukuloding;
 
-    private static final int URL_LOAD_COMPLETE = 0;
-    private static final int DANMUKU_LOAD_COMPLETE = 1;
-    private static final int READEY_TO_PLAY = 2;
+    static Handler handler = new Handler();
 
-    Handler handler = new Handler(){
+    Runnable toPlay = new Runnable() {
         @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case READEY_TO_PLAY:
-                    danmukuloding.setText("");
-                    urlloding.setText("");
-                    HashMap<Integer, List<DanmukuInfo>> map = DanmukuLoader.LoadDanmukuInfos(danmukuInfos);
-                    Uri uri = Uri.parse(url);
-                    mDanmukuPlayer = new DanmukuPlayer(PlayerActivity.this, rootLayout, map);
-                    mDanmukuPlayer.setMVideoView(mVideoView);
-                    mVideoView.setVideoURI(uri);
-                    mVideoView.setMediaController(mediaController);
-                    mVideoView.requestFocus();
-                    mVideoView.start();
-                    break;
-                case URL_LOAD_COMPLETE:
-                    urlloding.setText("视频地址加载完成！");
-                    danmukuloding.setText("全舰弹幕装填中.......>_<");
-                    danmukuloding.setTextColor(Color.parseColor("#ffffff"));
-                    //Toast.makeText(PlayerActivity.this,"视频地址加载完成！",Toast.LENGTH_LONG).show();
-                    break;
-                case DANMUKU_LOAD_COMPLETE:
-                    danmukuloding.setText("弹幕装填完成，准备发射！");
-                    //Toast.makeText(PlayerActivity.this,"弹幕加载完成！",Toast.LENGTH_LONG).show();
-                    break;
-            }
+        public void run() {
+            danmukuloding.setText("");
+            urlloding.setText("");
+            HashMap<Integer, List<DanmukuInfo>> map = DanmukuLoader.LoadDanmukuInfos(danmukuInfos);
+            Uri uri = Uri.parse(url);
+            mDanmukuPlayer = new DanmukuPlayer(PlayerActivity.this, rootLayout, map);
+            mDanmukuPlayer.setMVideoView(mVideoView);
+            mVideoView.setVideoURI(uri);
+            mVideoView.setMediaController(mediaController);
+            mVideoView.requestFocus();
+            mVideoView.start();
+        }
+    };
+
+    Runnable urlLoadComplete = new Runnable() {
+        @Override
+        public void run() {
+            urlloding.setText("视频地址加载完成！");
+            danmukuloding.setText("全舰弹幕装填中.......>_<");
+            danmukuloding.setTextColor(Color.parseColor("#ffffff"));
+        }
+    };
+
+    Runnable danmukuLoadComplete = new Runnable() {
+        @Override
+        public void run() {
+            danmukuloding.setText("弹幕装填完成，准备发射！");
         }
     };
 
@@ -98,15 +97,6 @@ public class PlayerActivity extends ActionBarActivity {
         loadUrl();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (mDanmukuPlayer!=null){
-            if (mDanmukuPlayer.listenerThread != null){
-                mDanmukuPlayer.listenerThread.destroy();
-            }
-        }
-    }
 
     public void loadDanmuku(){
         Log.d("danmuku","loding");
@@ -118,10 +108,8 @@ public class PlayerActivity extends ActionBarActivity {
                 if (danmukuInfos.isEmpty()) {
                     loadDanmuku();
                 } else {
-                    Message m1 = new Message();
-                    m1.what = DANMUKU_LOAD_COMPLETE;
-                    Message m2 = new Message();
-                    m2.what = READEY_TO_PLAY;
+                    Message m1 = Message.obtain(handler,danmukuLoadComplete);
+                    Message m2 = Message.obtain(handler,toPlay);
                     handler.sendMessage(m1);
                     handler.sendMessageDelayed(m2, 500);
                 }
@@ -141,8 +129,7 @@ public class PlayerActivity extends ActionBarActivity {
             @Override
             public void onFinish(JSONObject response) {
                 url = JsonHandler.handleVideoURL(response);
-                Message m = new Message();
-                m.what = URL_LOAD_COMPLETE;
+                Message m = Message.obtain(handler,urlLoadComplete);
                 handler.sendMessage(m);
                 loadDanmuku();
             }
@@ -155,4 +142,9 @@ public class PlayerActivity extends ActionBarActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDanmukuPlayer.destroy();
+    }
 }

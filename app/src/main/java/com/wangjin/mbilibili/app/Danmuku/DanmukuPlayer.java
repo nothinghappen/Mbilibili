@@ -1,11 +1,14 @@
 package com.wangjin.mbilibili.app.Danmuku;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
@@ -29,34 +32,68 @@ import java.util.Random;
 public class DanmukuPlayer {
 
     private ViewGroup rootView;
-    Context mContext;
+    private Context mContext;
     private DanmukuManager mDanmukuManager = new DanmukuManager();
     private int screenHeight;
     private int screenWidth;
     private int rowCount;
     private float dpValue;
     private List<ObjectAnimator> animatorList = new ArrayList<>();
-    private HashMap<Integer,List<DanmukuInfo>> danmukuInfos;
-    Random random = new Random();
+    private HashMap<Integer, List<DanmukuInfo>> danmukuInfos;
+    private Random random = new Random();
     private MVideoView mVideoView;
-    public Thread listenerThread;
     private boolean play_flag = true;
+    private HandlerThread MVideoViewPositionListener;
+    private Handler handler;
+    private int old_time = 0;
 
-    public DanmukuPlayer(Context context,ViewGroup rootView,HashMap<Integer,List<DanmukuInfo>> danmukuInfos){
+    Runnable ListenMVideoViewPosition = new Runnable() {
+        @Override
+        public void run() {
+            int position = mVideoView.getCurrentPosition();
+            PositionChangeCallBack(position);
+            handler.postDelayed(ListenMVideoViewPosition,1000);
+        }
+    };
+
+    public void PositionChangeCallBack(int currentPosition) {
+        int time = currentPosition / 1000;
+        if (time != old_time) {
+            Log.d("danmuku", String.valueOf(time));
+            List<DanmukuInfo> l = danmukuInfos.get(Integer.valueOf(time));
+            if (l != null) {
+                for (final DanmukuInfo d : l) {
+                    rootView.post(new Runnable() {
+                        @Override
+                        public void run() {//暂且只支持一个尺寸！
+                            send(d.getText(), 20, d.getColor());
+                        }
+                    });
+                }
+            }
+            old_time = time;
+        }
+    }
+
+
+    public DanmukuPlayer(Context context, ViewGroup rootView, HashMap<Integer, List<DanmukuInfo>> danmukuInfos) {
         this.mContext = context;
         this.rootView = rootView;
         this.danmukuInfos = danmukuInfos;
         DisplayMetrics metric = new DisplayMetrics();
-        ((Activity)mContext).getWindowManager().getDefaultDisplay().getMetrics(metric);
+        ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(metric);
         screenHeight = metric.heightPixels;
         screenWidth = metric.widthPixels;
         dpValue = metric.density;
-        rowCount = (int)(screenHeight/(Danmuku.MIN_SIZE*dpValue));
+        rowCount = (int) (screenHeight / (Danmuku.MIN_SIZE * dpValue));
+        MVideoViewPositionListener = new HandlerThread("PositionListener");
+        MVideoViewPositionListener.start();
+        handler = new Handler(MVideoViewPositionListener.getLooper());
     }
 
-    public void send(String text,int size,int color){
-        int row = Math.abs(random.nextInt()%rowCount);
-        float y = row*Danmuku.MIN_SIZE*dpValue;
+    public void send(String text, int size, int color) {
+        int row = Math.abs(random.nextInt() % rowCount);
+        float y = row * Danmuku.MIN_SIZE * dpValue;
         final Danmuku danmuku = mDanmukuManager.getDanmuku(text, size, color);
         danmuku.setY(y);
         danmuku.setX(screenWidth + 100);
@@ -68,26 +105,11 @@ public class DanmukuPlayer {
                         .setDuration(8000);
                 animator.setInterpolator(new LinearInterpolator());
                 animatorList.add(animator);
-                animator.addListener(new Animator.AnimatorListener() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-
-                    }
-
+                animator.addListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         animatorList.remove(animator);
                         mDanmukuManager.recycleDanmuku(danmuku);
-                    }
-
-                    @Override
-                    public void onAnimationCancel(Animator animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animator animation) {
-
                     }
                 });
                 animator.start();
@@ -101,8 +123,10 @@ public class DanmukuPlayer {
             @Override
             public void onStart() {
                 restart();
-                listenerThread = ListenMVideoViewPosition();
-                listenerThread.start();
+                if (play_flag) {
+                    play_flag = false;
+                    handler.post(ListenMVideoViewPosition);
+                }
             }
 
             @Override
@@ -112,61 +136,17 @@ public class DanmukuPlayer {
         });
     }
 
-    public void PositionChangeCallBack(int currentPosition){
-        int time = currentPosition/1000;
-        if (play_flag) {
-            Log.d("Danmuku", "time: " + time);
-            List<DanmukuInfo> l = danmukuInfos.get(Integer.valueOf(time));
-            if (l != null) {
-                for (final DanmukuInfo d : l) {
-                    rootView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            //暂且只支持一个尺寸！
-                            send(d.getText(),20,d.getColor());
-                        }
-                    });
-                }
-            }
-        }
-    }
 
-    public Thread ListenMVideoViewPosition(){
-
-        Thread listenerThread = new Thread(){
-            boolean flag = true;
-
-            @Override
-            public void destroy() {
-                flag = false;
-            }
-
-            @Override
-            public void run() {
-                while (flag) {
-                    int position = mVideoView.getCurrentPosition();
-                    PositionChangeCallBack(position);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        };
-        return listenerThread;
-    }
-
-    public void pause(){
+    public void pause() {
         play_flag = false;
-        for (ObjectAnimator a : animatorList){
+        for (ObjectAnimator a : animatorList) {
             a.pause();
         }
     }
 
-    public void restart(){
+    public void restart() {
         play_flag = true;
-        for (ObjectAnimator a : animatorList){
+        for (ObjectAnimator a : animatorList) {
             a.resume();
         }
     }
@@ -177,19 +157,19 @@ public class DanmukuPlayer {
         private ArrayList<Danmuku> perpared = new ArrayList<>();
 
 
-        public synchronized void recycleDanmuku(Danmuku danmuku){
+        public synchronized void recycleDanmuku(Danmuku danmuku) {
             if (perpared.size() >= 10)
                 rootView.removeView(danmuku);
             else
                 perpared.add(danmuku);
         }
 
-        public synchronized Danmuku getDanmuku(String text,int size,int color){
-            if (perpared.isEmpty()){
-                Danmuku danmuku = new Danmuku(mContext,text,size,color);
+        public synchronized Danmuku getDanmuku(String text, int size, int color) {
+            if (perpared.isEmpty()) {
+                Danmuku danmuku = new Danmuku(mContext, text, size, color);
                 rootView.addView(danmuku);
                 return danmuku;
-            }else {
+            } else {
                 Danmuku danmuku = perpared.get(0);
                 perpared.remove(0);
                 danmuku.setTextSize(size);
@@ -205,6 +185,11 @@ public class DanmukuPlayer {
         public void setMax_Danmuku(int max_Danmuku) {
             this.max_Danmuku = max_Danmuku;
         }
+    }
+
+    public void destroy() {
+        handler.removeCallbacks(ListenMVideoViewPosition);
+        MVideoViewPositionListener.quitSafely();
     }
 
 
