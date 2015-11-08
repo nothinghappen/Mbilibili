@@ -59,7 +59,7 @@ public class NewBangumiActivity extends BaseActivity implements  AdapterView.OnI
 
                     @Override
                     public void onError(VolleyError error) {
-
+                        System.out.println(error.toString());
                     }
                 });
     }

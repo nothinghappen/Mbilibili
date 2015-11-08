@@ -41,8 +41,9 @@ public class XMLRequest extends Request<XmlPullParser> {
   
     @Override  
     protected Response<XmlPullParser> parseNetworkResponse(NetworkResponse response) {
-        try {  
-            String xmlString = new String(response.data,  
+        try {
+
+            String xmlString = new String(response.data,
                     HttpHeaderParser.parseCharset(response.headers,"utf-8"));
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             XmlPullParser xmlPullParser = factory.newPullParser();  
@@ -52,7 +53,7 @@ public class XMLRequest extends Request<XmlPullParser> {
             return Response.error(new ParseError(e));
         } catch (XmlPullParserException e) {
             return Response.error(new ParseError(e));  
-        }  
+        }
     }  
   
     @Override  

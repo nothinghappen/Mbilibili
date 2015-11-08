@@ -2,6 +2,7 @@ package com.wangjin.mbilibili.app.Utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.android.volley.RequestQueue;
@@ -9,6 +10,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.wangjin.mbilibili.R;
 
@@ -32,6 +34,8 @@ public class HttpRequestUtils {
     private Context mContext;
     private MImageCache mImageCache;
 
+    private static HttpRequestUtils httpRequestUtils;
+
     public interface onResponseFinishedListener{
         public void onFinish(JSONObject response);
         public void onError(VolleyError error);
@@ -53,12 +57,17 @@ public class HttpRequestUtils {
     }
 
     public static HttpRequestUtils newInstance(Context context){
-        return new HttpRequestUtils(Volley.newRequestQueue(context),context);
+        if (httpRequestUtils == null){
+            httpRequestUtils = new HttpRequestUtils(Volley.newRequestQueue(context,10*1024*1024),context);
+            return httpRequestUtils;
+        }else {
+            return httpRequestUtils;
+        }
     }
 
     //onResponseFinishedListener 中处理返回数据
     public void getJson(String adress, final onResponseFinishedListener listener ){
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(adress, null,
+        final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(adress, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -70,6 +79,7 @@ public class HttpRequestUtils {
                 listener.onError(error);
             }
         });
+        jsonObjectRequest.setShouldCache(false);
         mRequestQueue.add(jsonObjectRequest);
     }
 
@@ -85,6 +95,7 @@ public class HttpRequestUtils {
                 listener.onError(error);
             }
         });
+        xmlRequest.setShouldCache(false);
         mRequestQueue.add(xmlRequest);
     }
 
@@ -93,7 +104,7 @@ public class HttpRequestUtils {
     public void loadImage(String url,ImageView imageView){
         mImageCache = MImageCache.getInstance();
         ImageLoader imageLoader = new ImageLoader(mRequestQueue,mImageCache);
-        ImageLoader.ImageListener listener = imageLoader.getImageListener(imageView, R.drawable.ic_launcher,R.drawable.ic_launcher);
+        ImageLoader.ImageListener listener = imageLoader.getImageListener(imageView, R.drawable.little_tv,R.drawable.little_tv);
         imageLoader.get(url,listener);
     }
 

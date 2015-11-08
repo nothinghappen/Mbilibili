@@ -4,6 +4,7 @@ import android.view.View;
 
 import com.wangjin.mbilibili.app.model.Bangumi;
 import com.wangjin.mbilibili.app.model.BangumiInfo;
+import com.wangjin.mbilibili.app.model.Banner;
 import com.wangjin.mbilibili.app.model.List;
 import com.wangjin.mbilibili.app.model.ListInfo;
 import com.wangjin.mbilibili.app.model.Recommend;
@@ -26,14 +27,14 @@ import java.util.Date;
  */
 public class JsonHandler {
 
-    public static BangumiInfo handleBangumiInfo(JSONObject bangumi){
-        BangumiInfo bangumiInfo= new BangumiInfo();
+    public static BangumiInfo handleBangumiInfo(JSONObject bangumi) {
+        BangumiInfo bangumiInfo = new BangumiInfo();
         bangumiInfo.bangumis = new ArrayList<>();
         try {
             bangumiInfo.num = bangumi.getInt("results");
             JSONArray js = bangumi.getJSONArray("list");
-            if(js != null && js.length() > 0){
-                for (int i = 0;i<js.length();i++){
+            if (js != null && js.length() > 0) {
+                for (int i = 0; i < js.length(); i++) {
                     JSONObject j = js.getJSONObject(i);
                     Bangumi b = new Bangumi();
                     b.setTitle(j.getString("title"));
@@ -62,13 +63,13 @@ public class JsonHandler {
         return bangumiInfo;
     }
 
-    public static RecommendInfo handleRecommendInfo(JSONObject recommend){
+    public static RecommendInfo handleRecommendInfo(JSONObject recommend) {
         RecommendInfo recommendInfo = new RecommendInfo();
         try {
             recommendInfo.setPages(recommend.getInt("pages"));
             recommendInfo.setNum(recommend.getInt("num"));
             JSONArray jsonArray = recommend.getJSONArray("list");
-            for (int i = 0;i<jsonArray.length();i++){
+            for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject j = jsonArray.getJSONObject(i);
                 Recommend r = new Recommend();
                 r.setTypeid(j.getInt("typeid"));
@@ -95,12 +96,12 @@ public class JsonHandler {
         return spInfo;
     }
 
-    public static SpviewInfo handleSpviewInfo(JSONObject spv){
+    public static SpviewInfo handleSpviewInfo(JSONObject spv) {
         SpviewInfo spviewInfo = new SpviewInfo();
         try {
             spviewInfo.setResult(spv.getInt("results"));
             JSONArray jsonArray = spv.getJSONArray("list");
-            for (int i = 0;i<jsonArray.length();i++){
+            for (int i = 0; i < jsonArray.length(); i++) {
                 Spview s = new Spview();
                 JSONObject j = jsonArray.getJSONObject(i);
                 s.setTitle(j.getString("title"));
@@ -116,13 +117,13 @@ public class JsonHandler {
         return spviewInfo;
     }
 
-    public static ListInfo handleListInfo(JSONObject l){
+    public static ListInfo handleListInfo(JSONObject l) {
         ListInfo listInfo = new ListInfo();
         try {
             listInfo.setPages(l.getInt("pages"));
             listInfo.setResults(l.getInt("results"));
             JSONObject list = l.getJSONObject("list");
-            for (int i = 0;i<list.length()-1;i++){
+            for (int i = 0; i < list.length() - 1; i++) {
                 JSONObject j = list.getJSONObject(String.valueOf(i));
                 List li = new List();
                 li.setAid(j.getInt("aid"));
@@ -139,27 +140,32 @@ public class JsonHandler {
         return listInfo;
     }
 
-    public static java.util.List<RecommendBangumi> handleRecommendBangumi(JSONObject res){
+    public static java.util.List<RecommendBangumi> handleRecommendBangumi(JSONObject res) {
         ArrayList<RecommendBangumi> recommendBangumis = new ArrayList<>();
         try {
             JSONArray bangumis = res.getJSONArray("list");
-            for(int i = 0;i<bangumis.length();i++){
-                JSONObject bangumi = bangumis.getJSONObject(i);
-                RecommendBangumi rb = new RecommendBangumi();
-                rb.setTitle(bangumi.getString("title"));
-                rb.setSpid(bangumi.getInt("spid"));
-                rb.setCover(bangumi.getString("imageurl"));
-                rb.setImg_heigth(bangumi.getInt("height"));
-                rb.setImg_width(bangumi.getInt("width"));
-                recommendBangumis.add(rb);
+            for (int i = 0; i < bangumis.length(); i++) {
+                try {
+                    JSONObject bangumi = bangumis.getJSONObject(i);
+                    RecommendBangumi rb = new RecommendBangumi();
+                    rb.setTitle(bangumi.getString("title"));
+                    rb.setSpid(bangumi.getInt("spid"));
+                    rb.setCover(bangumi.getString("imageurl"));
+                    rb.setImg_heigth(bangumi.getInt("height"));
+                    rb.setImg_width(bangumi.getInt("width"));
+                    recommendBangumis.add(rb);
+                } catch (JSONException e) {
+
+                }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            return null;
         }
+
         return recommendBangumis;
     }
 
-    public static ViewInfo handleView(JSONObject res){
+    public static ViewInfo handleView(JSONObject res) {
         ViewInfo viewInfo = new ViewInfo();
         try {
             viewInfo.setCid(res.getInt("cid"));
@@ -174,7 +180,7 @@ public class JsonHandler {
         return viewInfo;
     }
 
-    public static String handleVideoURL(JSONObject res){
+    public static String handleVideoURL(JSONObject res) {
         String url = "";
         try {
             JSONArray durl = res.getJSONArray("durl");
@@ -184,6 +190,35 @@ public class JsonHandler {
             e.printStackTrace();
         }
         return url;
+    }
+
+    public static ArrayList<Banner> handleBannerJson(JSONObject jsonObject) {
+        ArrayList<Banner> banners = new ArrayList<>();
+        try {
+            JSONArray jsonArray = jsonObject.getJSONArray("list");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                try {
+                    Banner banner = new Banner();
+                    JSONObject b = jsonArray.getJSONObject(i);
+                    int spid = b.getInt("spid");
+                    String title = b.getString("title");
+                    String imageurl = b.getString("imageurl");
+                    int width = b.getInt("width");
+                    int height = b.getInt("height");
+                    banner.setHeight(height);
+                    banner.setWidth(width);
+                    banner.setSpid(spid);
+                    banner.setImageurl(imageurl);
+                    banner.setTitle(title);
+                    banners.add(banner);
+                } catch (JSONException e) {
+
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return banners;
     }
 
 

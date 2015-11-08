@@ -13,17 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.android.volley.VolleyError;
-import com.bartoszlipinski.recyclerviewheader.RecyclerViewHeader;
 import com.wangjin.mbilibili.R;
 import com.wangjin.mbilibili.app.Activities.FirstActivity;
-import com.wangjin.mbilibili.app.Requests.RecommendRequest;
-import com.wangjin.mbilibili.app.Utils.HttpRequestUtils;
-import com.wangjin.mbilibili.app.Utils.JsonHandler;
-import com.wangjin.mbilibili.app.model.Recommend;
-import com.wangjin.mbilibili.app.model.RecommendInfo;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;

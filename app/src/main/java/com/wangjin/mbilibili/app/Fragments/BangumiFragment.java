@@ -1,17 +1,20 @@
 package com.wangjin.mbilibili.app.Fragments;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.app.Fragment;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,9 +26,9 @@ import com.wangjin.mbilibili.app.Activities.VideoInfoActivity;
 import com.wangjin.mbilibili.app.Requests.ListRequest;
 import com.wangjin.mbilibili.app.Utils.HttpRequestUtils;
 import com.wangjin.mbilibili.app.Utils.JsonHandler;
+import com.wangjin.mbilibili.app.model.Banner;
 import com.wangjin.mbilibili.app.model.ListInfo;
 import com.wangjin.mbilibili.app.model.RecommendBangumi;
-import com.wangjin.mbilibili.app.views.UnScrollableGridView;
 
 import org.json.JSONObject;
 
@@ -46,10 +49,25 @@ public class BangumiFragment extends BaseFragment {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private ViewPager bannerViewPager;
+    private PagerAdapter mPagerAdapter;
     private HttpRequestUtils httpRequestUtils;
+    private List<ImageView> banner_views = new ArrayList<>();
+    private List<Banner> banners = new ArrayList<>();
     private List<RecommendBangumi> lists = new ArrayList<>();
     private List<com.wangjin.mbilibili.app.model.List> hot_bangumis = new ArrayList<>();
 
+    static Handler handler = new Handler();
+
+    Runnable Carousel = new Runnable() {
+        @Override
+        public void run() {
+            if (bannerViewPager != null && mPagerAdapter.getCount() != 0){
+                bannerViewPager.setCurrentItem((bannerViewPager.getCurrentItem()+1)%mPagerAdapter.getCount());
+            }
+            handler.postDelayed(Carousel,4000);
+        }
+    };
 
     public static BangumiFragment newInstance(String s) {
         BangumiFragment fragment = new BangumiFragment();
@@ -61,25 +79,24 @@ public class BangumiFragment extends BaseFragment {
         // Required empty public constructor
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Log.d("viewpager", "oncreate");
         DisplayMetrics metric = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metric);
         dpi = metric.densityDpi;
-
         httpRequestUtils = HttpRequestUtils.newInstance(getActivity());
         mAdapter = new BangumiAdapter(lists,hot_bangumis);
-
+        mPagerAdapter = new ScreenSlidePagerAdapter();
+        handler.post(Carousel);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
-
         View v = inflater.inflate(R.layout.fragment_bangumi, container, false);
+        Log.d("viewpager","oncreateview");
         mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView = (RecyclerView) v.findViewById(R.id.bangumi_recyclerview);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -87,6 +104,32 @@ public class BangumiFragment extends BaseFragment {
         initData();
         return v;
     }
+
+
+    private class ScreenSlidePagerAdapter extends PagerAdapter{
+
+        @Override
+        public int getCount() {
+            return banner_views.size();
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            container.addView(banner_views.get(position));
+            return banner_views.get(position);
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView(banner_views.get(position));
+        }
+    }
+
 
     private class BangumiAdapter extends RecyclerView.Adapter {
         static final int HEADER = 0;
@@ -117,6 +160,8 @@ public class BangumiFragment extends BaseFragment {
                 View v = LayoutInflater.from(getActivity()).inflate(R.layout.bangumi_header_layout,parent,false);
                 ((StaggeredGridLayoutManager.LayoutParams) v.getLayoutParams()).setFullSpan(true);
                 MainHeaderHolder mhvh = new MainHeaderHolder(v);
+                bannerViewPager = (ViewPager) v.findViewById(R.id.bannerpager);
+                bannerViewPager.setAdapter(mPagerAdapter);
                 return mhvh;
             }else if (viewType == HOT_ITEM){
                 View v = LayoutInflater.from(getActivity()).inflate(R.layout.item_hot_bangumi,parent,false);
@@ -141,9 +186,11 @@ public class BangumiFragment extends BaseFragment {
                 if (holder instanceof HeaderViewHodler){
                     if (position == 1){
                         HeaderViewHodler headerViewHodler = (HeaderViewHodler) holder;
+                        headerViewHodler.imageView.setImageResource(R.drawable.hot_item_icon);
                         headerViewHodler.title.setText("本区热门");
                     }else {
                         HeaderViewHodler headerViewHodler = (HeaderViewHodler) holder;
+                        headerViewHodler.imageView.setImageResource(R.drawable.recommand_icon);
                         headerViewHodler.title.setText("推荐番剧");
                     }
                 }
@@ -199,17 +246,19 @@ public class BangumiFragment extends BaseFragment {
 
         private class HeaderViewHodler extends RecyclerView.ViewHolder {
             TextView title;
+            ImageView imageView;
             public HeaderViewHodler(View itemView) {
                 super(itemView);
                 title = (TextView) itemView.findViewById(R.id.header_title);
+                imageView = (ImageView) itemView.findViewById(R.id.video_camera_icon);
             }
         }
 
         private class MainHeaderHolder extends RecyclerView.ViewHolder{
-            private Button btn;
+            private CardView btn;
             public MainHeaderHolder(View itemView) {
                 super(itemView);
-                btn = (Button) itemView.findViewById(R.id.NewBangumi);
+                btn = (CardView) itemView.findViewById(R.id.NewBangumi);
             }
         }
 
@@ -233,9 +282,28 @@ public class BangumiFragment extends BaseFragment {
         }
     }
 
+    public void initbannerview(){
+        banner_views.clear();
+        for (final Banner bb : banners){
+            ImageView imageView = (ImageView) LayoutInflater.from(getActivity()).inflate(R.layout.bannerimageview,null);
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(getActivity(),VideoInfoActivity.class);
+                    i.putExtra("spid",bb.getSpid());
+                    startActivity(i);
+                }
+            });
+            httpRequestUtils.loadImage(bb.getImageurl(),imageView);
+            banner_views.add(imageView);
+        }
+    }
+
     private void initData(){
         if (lists.isEmpty()) {
-            String request = "http://app.bilibili.com/bangumi/operation_module?_device=android&_hwid=ccbb856c97ccb8d2&appkey=c1b107428d337928&build=406001&channel=baidu&module=bangumi&platform=android&screen=xhdpi&test=0&ts=1445825927000&sign=9a1c61ecd5d46c1343ac0f1428ca8cc8";
+            String request = "http://app.bilibili.com/bangumi/operation_module?_device=android" +
+                    "&_hwid=ccbb856c97ccb8d2&appkey=c1b107428d337928&build=406001&channel=baidu&module=bangumi" +
+                    "&platform=android&screen=xhdpi&test=0&ts=1445825927000&sign=9a1c61ecd5d46c1343ac0f1428ca8cc8";
             httpRequestUtils.getJson(request, new HttpRequestUtils.onResponseFinishedListener() {
                 @Override
                 public void onFinish(JSONObject response) {
@@ -247,7 +315,7 @@ public class BangumiFragment extends BaseFragment {
 
                 @Override
                 public void onError(VolleyError error) {
-
+                    System.out.println(error.toString());
                 }
             });
         }
@@ -264,10 +332,28 @@ public class BangumiFragment extends BaseFragment {
 
                 @Override
                 public void onError(VolleyError error) {
-
+                    System.out.println(error.toString());
                 }
             });
         }
+
+        String address = "http://app.bilibili.com/bangumi/operation_module?_device=android" +
+                "&_hwid=ccbb856c97ccb8d2&appkey=c1b107428d337928&build=406001&channel=baidu" +
+                "&module=banner&platform=android&screen=xhdpi&test=0&ts=1445825927000&sign=9a1c61ecd5d46c1343ac0f1428ca8cc8";
+        httpRequestUtils.getJson(address, new HttpRequestUtils.onResponseFinishedListener() {
+            @Override
+            public void onFinish(JSONObject response) {
+                ArrayList<Banner> b = JsonHandler.handleBannerJson(response);
+                banners.addAll(b);
+                initbannerview();
+                mPagerAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+
+            }
+        });
     }
 
 

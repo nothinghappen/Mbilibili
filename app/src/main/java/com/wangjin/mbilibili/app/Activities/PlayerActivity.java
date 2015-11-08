@@ -99,9 +99,11 @@ public class PlayerActivity extends ActionBarActivity {
 
 
     public void loadDanmuku(){
-        Log.d("danmuku","loding");
-        httpRequestUtils.getXml("http://www.bilibilijj.com/ashx/Barrage" +
-                ".ashx?f=true&av=&p=&s=xml&cid=" + cid + "&n=" + cid, new HttpRequestUtils.onXMLResponseFinishedListener() {
+        Log.d("danmuku", "loding");
+//        String url = "http://comment.bilibili.cn/"+cid+".xml";
+        String url = "http://www.bilibilijj.com/ashx/Barrage" +
+                ".ashx?f=true&av=&p=&s=xml&cid=" + cid + "&n=" + cid;
+        httpRequestUtils.getXml(url, new HttpRequestUtils.onXMLResponseFinishedListener() {
             @Override
             public void onFinish(XmlPullParser response) {
                 danmukuInfos = XMLhandler.handleDanmukuXml(response);

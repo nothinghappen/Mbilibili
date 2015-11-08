@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 import com.wangjin.mbilibili.R;
 import com.wangjin.mbilibili.app.Fragments.BangumiFragment;
 import com.wangjin.mbilibili.app.Fragments.BaseFragment;
@@ -36,6 +37,7 @@ public class FirstActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_first);
+        HttpRequestUtils.newInstance(this);
         mainFragment = new MainFragment();
         getSupportFragmentManager().beginTransaction().add(R.id.fragment_container,mainFragment).commit();
     }
