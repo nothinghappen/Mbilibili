@@ -21,8 +21,7 @@ public class MImageView extends ImageView {
 
     @Override
     public void setImageBitmap(Bitmap bm) {
-        this.setAlpha(0f);
         super.setImageBitmap(bm);
-        ObjectAnimator.ofFloat(this,"Alpha",0f,1f).setDuration(2000).start();
+        ObjectAnimator.ofFloat(this,"Alpha",0f,1f).setDuration(500).start();
     }
 }

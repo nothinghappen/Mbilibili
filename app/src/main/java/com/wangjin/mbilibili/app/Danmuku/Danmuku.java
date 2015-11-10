@@ -1,26 +1,31 @@
 package com.wangjin.mbilibili.app.Danmuku;
 
-import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Color;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.widget.TextView;
 
-import com.wangjin.mbilibili.R;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
- * Created by wangjin on 15/10/26.
+ * Created by wangjin on 15/11/10.
  */
-public class Danmuku extends TextView {
+public class Danmuku extends TextView implements Observer{
 
-    public static final int MIN_SIZE = 20;
-    public int trackNum;
-    private PositionChangeListner positionChangeListner;
+    public static final int DEFAULT_SIZE = 20;
+    public ValueAnimator animator;
 
-    public Danmuku(Context context,String text,int size,int color) {
+    public void setAnimator(ValueAnimator animator) {
+        this.animator = animator;
+    }
+
+    public Danmuku(Context context) {
         super(context);
+    }
+
+    public void init(String text, int size, int color){
         String c = "#"+Integer.toHexString(color);
         setText(text);
         try {
@@ -29,26 +34,27 @@ public class Danmuku extends TextView {
             System.out.println(e);
             setTextColor(Color.parseColor("#000000"));
         }
-
         setTextSize(TypedValue.COMPLEX_UNIT_DIP, size);
     }
 
-
-    public void setPositionChangeListner(PositionChangeListner positionChangeListner) {
-        this.positionChangeListner = positionChangeListner;
+    public void init(String text,int color){
+        init(text,DEFAULT_SIZE,color);
     }
 
-    interface PositionChangeListner{
-        void PositionCallBack();
-    }
+    @Override
+    public void update(Observable observable, Object data) {
+        String command = (String) data;
+        switch (command){
+            case "pause":
+                animator.pause();
+                break;
+            case "resume":
+                animator.resume();
+                break;
+            case "cancel":
+                animator.cancel();
+                break;
+        }
 
-    public void listenStart(){
-        new Thread(){
-            @Override
-            public void run() {
-                positionChangeListner.PositionCallBack();
-            }
-        }.start();
     }
-
 }

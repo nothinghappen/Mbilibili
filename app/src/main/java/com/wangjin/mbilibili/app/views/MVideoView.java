@@ -4,14 +4,11 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.VideoView;
 
-import com.wangjin.mbilibili.app.Danmuku.DanmukuPlayer;
-
 /**
  * Created by wangjin on 15/10/27.
  */
 public class MVideoView extends VideoView {
 
-    DanmukuPlayer mDanmukuPlayer;
 
     public interface StateChangeListner{
         public void onStart();
@@ -19,10 +16,6 @@ public class MVideoView extends VideoView {
     }
 
     StateChangeListner listner;
-
-    public void setDanmukuPlayer(DanmukuPlayer mDanmukuPlayer) {
-        this.mDanmukuPlayer = mDanmukuPlayer;
-    }
 
     public void setStateChangeListner(StateChangeListner listner){
         this.listner = listner;

@@ -1,8 +1,5 @@
 package com.wangjin.mbilibili.app.Utils;
 
-import android.util.Log;
-
-import com.wangjin.mbilibili.app.Danmuku.Danmuku;
 import com.wangjin.mbilibili.app.Danmuku.DanmukuInfo;
 
 import org.xmlpull.v1.XmlPullParser;

@@ -7,12 +7,10 @@ import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.wangjin.mbilibili.R;
@@ -52,8 +50,8 @@ public class PlayerActivity extends ActionBarActivity {
             urlloding.setText("");
             HashMap<Integer, List<DanmukuInfo>> map = DanmukuLoader.LoadDanmukuInfos(danmukuInfos);
             Uri uri = Uri.parse(url);
-            mDanmukuPlayer = new DanmukuPlayer(PlayerActivity.this, rootLayout, map);
-            mDanmukuPlayer.setMVideoView(mVideoView);
+            mDanmukuPlayer.setmVideoView(mVideoView);
+            mDanmukuPlayer.setDanmukuInfos(map);
             mVideoView.setVideoURI(uri);
             mVideoView.setMediaController(mediaController);
             mVideoView.requestFocus();
@@ -147,6 +145,7 @@ public class PlayerActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mDanmukuPlayer.destroy();
+        mDanmukuPlayer.destory();
     }
+
 }

@@ -14,20 +14,6 @@ import com.wangjin.mbilibili.app.Utils.XMLhandler;
 
 import org.xmlpull.v1.XmlPullParser;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
-
 public class TestActivity extends AppCompatActivity {
 
     @Override
