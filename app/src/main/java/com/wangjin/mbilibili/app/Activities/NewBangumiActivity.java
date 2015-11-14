@@ -44,7 +44,7 @@ public class NewBangumiActivity extends BaseActivity implements  AdapterView.OnI
         adapter = new Adapter(this,0,bangumis);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(this);
-        httpRequestUtils = HttpRequestUtils.newInstance(this);
+        httpRequestUtils = HttpRequestUtils.getInstance();
         httpRequestUtils.getJson(new BangumiRequest().setType(BangumiRequest.TWO).toString(),
                 new HttpRequestUtils.onResponseFinishedListener() {
                     @Override

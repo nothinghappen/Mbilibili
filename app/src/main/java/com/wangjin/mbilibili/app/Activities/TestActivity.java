@@ -20,7 +20,7 @@ public class TestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
-        final HttpRequestUtils httpRequestUtils = HttpRequestUtils.newInstance(this);
+        final HttpRequestUtils httpRequestUtils = HttpRequestUtils.getInstance();
         Button b = (Button) findViewById(R.id.button);
         b.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -86,7 +86,7 @@ public class BangumiFragment extends BaseFragment {
         DisplayMetrics metric = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metric);
         dpi = metric.densityDpi;
-        httpRequestUtils = HttpRequestUtils.newInstance(getActivity());
+        httpRequestUtils = HttpRequestUtils.getInstance();
         mAdapter = new BangumiAdapter(lists,hot_bangumis);
         mPagerAdapter = new ScreenSlidePagerAdapter();
         handler.post(Carousel);

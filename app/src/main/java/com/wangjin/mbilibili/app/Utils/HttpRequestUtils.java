@@ -11,6 +11,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wangjin.mbilibili.R;
+import com.wangjin.mbilibili.app.MyApplication;
 
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
@@ -29,12 +30,12 @@ public class HttpRequestUtils {
         this.mRequestQueue = r;
     }
 
-    public static HttpRequestUtils newInstance(Context context) {
+    public static HttpRequestUtils getInstance() {
         if (httpRequestUtils == null) {
             synchronized (HttpRequestUtils.class) {
                 if (httpRequestUtils == null) {
                     httpRequestUtils = new HttpRequestUtils(
-                            Volley.newRequestQueue(context.getApplicationContext(), 10 * 1024 * 1024));
+                            Volley.newRequestQueue(MyApplication.getInstance(), 10 * 1024 * 1024));
                 }
             }
         }

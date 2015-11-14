@@ -86,7 +86,7 @@ public class PlayerActivity extends ActionBarActivity {
         urlloding.setText("视频地址加载中.......>_<");
         urlloding.setTextColor(Color.parseColor("#ffffff"));
         danmukuloding = (TextView) findViewById(R.id.danmukuloding);
-        httpRequestUtils = HttpRequestUtils.newInstance(this);
+        httpRequestUtils = HttpRequestUtils.getInstance();
         cid = getIntent().getIntExtra("cid", 0);
         mVideoView = (MVideoView) findViewById(R.id.player);
         mediaController = new MediaController(this);

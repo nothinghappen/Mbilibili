@@ -66,7 +66,7 @@ public class VideoInfoActivity extends ActionBarActivity implements BaseFragment
         setContentView(R.layout.activity_video_info);
         init();
         int spid = getIntent().getIntExtra("spid",0);
-        httpRequestUtils = HttpRequestUtils.newInstance(this);
+        httpRequestUtils = HttpRequestUtils.getInstance();
         httpRequestUtils.getJson(new SpRequest().setSpid(spid).toString(),
                 new HttpRequestUtils.onResponseFinishedListener() {
                     @Override
