@@ -50,6 +50,7 @@ public class PlayerActivity extends ActionBarActivity {
             urlloding.setText("");
             HashMap<Integer, List<DanmukuInfo>> map = DanmukuLoader.LoadDanmukuInfos(danmukuInfos);
             Uri uri = Uri.parse(url);
+            mDanmukuPlayer = new DanmukuPlayer(PlayerActivity.this,rootLayout);
             mDanmukuPlayer.setmVideoView(mVideoView);
             mDanmukuPlayer.setDanmukuInfos(map);
             mVideoView.setVideoURI(uri);
